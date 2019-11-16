@@ -1,8 +1,11 @@
 #include <ESP8266WiFi.h>
+
 WiFiServer server (80);
 
-const char* ssid = "IX Basement-2.4G";
-const char* pwd ="ixbasement@123";
+const char* ssid = "Infinix HOT 4";
+const char* pwd ="bushra@3";
+
+String value = "ON";
 
 void setup(){
   
@@ -45,15 +48,23 @@ void loop(){
    Serial.println(request);
    client.flush();
 
-  int value =LOW;
   if(request.indexOf("/LED=ON")!=-1){
   digitalWrite(LED_BUILTIN,HIGH);
-  value = HIGH;}
+  value = "ON";}
 
-  if(request.indexOf("/LED=OFF")!=-1){
+  if (request.indexOf("/LED=OFF")!=-1){
   digitalWrite(LED_BUILTIN,LOW);
-  value = LOW;
+  value = "OFF";
   }
+
+while(request.indexOf("/LED=Time")!=-1){
+    digitalWrite(LED_BUILTIN,HIGH);
+    delay(1000);
+    digitalWrite(LED_BUILTIN,LOW);
+    delay(1000);
+    value = "Delay";
+    }
+    
   client.println("HTTP/1.1 200 OK"); // standalone web server with an ESP8266
   client.println("Content-Type: text/html");
   client.println("");
@@ -61,22 +72,21 @@ void loop(){
   client.println("<html>");
 
   client.print("LED: ");
- 
-  if(value == HIGH)
-  {
-    client.print("ON");
-  }
-  else
-  {
-    client.print("OFF");
-  }
-  client.println("<br><br>");
-  client.println("<a href=\"/LED=ON\"\"><button>ON</button></a>");
-  client.println("<a href=\"/LED=OFF\"\"><button>OFF</button></a><br />");
-  client.println("</html>");
-
-  delay(1);
-  Serial.println("Client disonnected");
-  Serial.println("");
-  }
   
+  if(value == "ON")
+   client.print("ON");
+  else if (value =="OFF")
+   client.print("OFF");  
+  else
+  client.println("DELAY");
+  
+
+   client.println("<br><br>"); //one line space
+   client.println("<a href=\"/LED=ON\"\"><button>ON</button></a>");
+   client.println("<br><br>"); //one line space
+   client.println("<a href=\"/LED=OFF\"\"><button>OFF</button></a>");
+   client.println("<br><br>");
+   client.println("<a href=\"/LED=Time\"\"><button>One Second</button></a>");
+   client.println("</html>");
+
+}
